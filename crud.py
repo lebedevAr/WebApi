@@ -18,14 +18,16 @@ def get_categories(db: Session, skip: int = 0, limit: int = 10):
 
 
 def get_category(db: Session, category_id: int):
-    return db.query(Category).filter(id=category_id).first()
+    return db.query(Category).filter_by(id=category_id).first()
 
 
-def update_category(db: Session, category_id: int, schema: schemas.CategoryUpdate):
-    db_category = db.query(Category).filter(id=category_id).first()
+def update_category(db: Session, category_id: int, category_data: schemas.CategoryUpdate | dict):
+    db_category = db.query(Category).filter_by(id=category_id).first()
+
+    category_data = category_data if isinstance(category_data, dict) else category_data.model_dump()
 
     if db_category:
-        for key, value in schema.items():
+        for key, value in category_data.items():
             if hasattr(db_category, key):
                 setattr(db_category, key, value)
 
@@ -36,7 +38,7 @@ def update_category(db: Session, category_id: int, schema: schemas.CategoryUpdat
 
 
 def delete_category(db: Session, category_id: int):
-    db_category = db.query(Category).filter(id=category_id).first()
+    db_category = db.query(Category).filter_by(id=category_id).first()
     if db_category:
         db.delete(db_category)
         db.commit()
@@ -58,13 +60,16 @@ def get_items(db: Session, skip: int = 0, limit: int = 10):
 
 
 def get_item(db: Session, item_id: int):
-    return db.query(Item).filter(id=item_id).first()
+    return db.query(Item).filter_by(id=item_id).first()
 
 
-def update_item(db: Session, item_id: int, schema: schemas.ItemUpdate):
-    db_item = db.query(Item).filter(id=item_id).first()
+def update_item(db: Session, item_id: int, item_data: schemas.ItemUpdate | dict):
+    db_item = db.query(Item).filter_by(id=item_id).first()
+
+    item_data = item_data if isinstance(item_data, dict) else item_data.model_dump()
+
     if db_item:
-        for key, value in schema.items():
+        for key, value in item_data.items():
             if hasattr(db_item, key):
                 setattr(db_item, key, value)
 
@@ -75,7 +80,7 @@ def update_item(db: Session, item_id: int, schema: schemas.ItemUpdate):
 
 
 def delete_item(db: Session, item_id: int):
-    db_item = db.query(Item).filter(id=item_id).first()
+    db_item = db.query(Item).filter_by(id=item_id).first()
     if db_item:
         db.delete(db_item)
         db.commit()
