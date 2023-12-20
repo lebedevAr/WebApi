@@ -21,8 +21,14 @@ app = FastAPI(
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    server_urn = f"{request.scope.get('server')[0]}:{request.scope.get('server')[1]}"
-    return templates.TemplateResponse("index.html", {"request": request, "server_urn": server_urn})
+    http_protocol = request.headers.get("x-forwarded-proto", "http")
+    ws_protocol = "wss" if http_protocol == "https" else "ws"
+    server_urn = request.url.netloc
+    return templates.TemplateResponse("index.html",
+                                      {"request": request,
+                                       "http_protocol": http_protocol,
+                                       "ws_protocol": ws_protocol,
+                                       "server_urn": server_urn})
 
 
 # Подключаем созданные роутеры в приложение
