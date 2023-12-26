@@ -25,7 +25,7 @@ async def read_root(request: Request):
         ws_protocol = 'wss'
 
     server_urn = request.url.netloc
-    return templates.TemplateResponse("index.html",
+    return templates.TemplateResponse("..templates/index.html",
                                       {"request": request,
                                        "http_protocol": http_protocol,
                                        "ws_protocol": ws_protocol,
