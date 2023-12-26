@@ -9,13 +9,10 @@ from routes import router_websocket, router_categories, router_items
 
 models.Base.metadata.create_all(bind=engine)
 
-# Templates
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="../templates")
 
 app = FastAPI(
-    title="WebSocketChatCRUDNotify",
-    summary="WebSocket | Chat | Notifications of CRUD operations",
-    version="0.0.1",
+    title="WebSocket | Chat | Notifications of CRUD operations"
 )
 
 

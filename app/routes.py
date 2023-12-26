@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 import schemas
 from database import get_db
@@ -45,15 +46,15 @@ async def notify_clients(message: str):
 @router_websocket.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket)
-    await manager.broadcast(f"Client #{client_id} joined the chat")
+    await manager.broadcast(f"Client #{client_id} joined at {str(datetime.datetime.now().time()).split('.')[0]}")
     try:
         while True:
             data = await websocket.receive_text()
             await manager.send_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            await manager.broadcast(f"Client #{client_id}: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        await manager.broadcast(f"Client #{client_id} left at {str(datetime.datetime.now().time()).split('.')[0]}")
 
 
 @router_categories.post("/", response_model=schemas.Category)
