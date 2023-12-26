@@ -1,10 +1,8 @@
 from typing import List
-
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
-
 import schemas
 from database import get_db
 from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from crud import (
     create_category, get_categories, get_category, update_category, delete_category,
     create_item, get_items, get_item, update_item, delete_item
@@ -16,7 +14,7 @@ router_items = APIRouter(prefix='/items', tags=['item'])
 
 
 # WebSocket
-class ConnectionManager:
+class ConnectManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
 
@@ -27,7 +25,8 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
+    @staticmethod
+    async def send_message(message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
@@ -35,7 +34,7 @@ class ConnectionManager:
             await connection.send_text(message)
 
 
-manager = ConnectionManager()
+manager = ConnectManager()
 
 
 async def notify_clients(message: str):
@@ -50,14 +49,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.send_message(f"You wrote: {data}", websocket)
             await manager.broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
 
 
-# Категории
 @router_categories.post("/", response_model=schemas.Category)
 async def create_category_route(category_data: schemas.CategoryCreate, db: Session = Depends(get_db)):
     category = create_category(db, category_data)
@@ -95,7 +93,6 @@ async def delete_category_route(category_id: int, db: Session = Depends(get_db))
     return {"message": "Category not found"}
 
 
-# Товары
 @router_items.post("/", response_model=schemas.Item)
 async def create_item_route(schema: schemas.ItemCreate, db: Session = Depends(get_db)):
     item = create_item(db, schema)

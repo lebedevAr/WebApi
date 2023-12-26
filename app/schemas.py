@@ -13,10 +13,6 @@ class CategoryCreate(CategoryBase):
     pass
 
 
-class CategoryUpdate(CategoryBase):
-    name: Optional[str] = None
-
-
 class Category(CategoryBase):
     model_config = ConfigDict(from_attributes=True)
 
@@ -25,7 +21,10 @@ class Category(CategoryBase):
     updated_at: datetime
 
 
-# Item
+class CategoryUpdate(CategoryBase):
+    name: Optional[str] = None
+
+
 class ItemBase(BaseModel):
     name: str
     category_id: int

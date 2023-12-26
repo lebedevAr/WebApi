@@ -1,9 +1,7 @@
 from datetime import datetime
-
+from database import Base
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
 from sqlalchemy.orm import relationship
-
-from database import Base
 
 
 class Category(Base):
